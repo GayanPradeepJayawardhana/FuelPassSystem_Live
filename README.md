@@ -1,503 +1,734 @@
-# Travel Management System
+# Fuel Management System 🚗⛽
 
-A full-stack web application for managing travel packages and bookings. Users can browse travel packages, create bookings, and admins can manage packages and view all bookings.
+A comprehensive MERN (MongoDB, Express, React, Node.js) application for managing vehicle fuel quotas and dispensing. Admin users can manage vehicles and quotas, operators can dispense fuel, and regular users can track their vehicle information and fuel usage.
 
-**Live Demo:** https://travelbookinglive.netlify.app/
+**🌐 Live Website**: [https://fuelpasssystemlive.netlify.app/](https://fuelpasssystemlive.netlify.app/)
 
 ---
 
-## Table of Contents
+## 📋 Table of Contents
 
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
-- [Getting Started](#getting-started)
-- [API Documentation](#api-documentation)
-- [Deployment](#deployment)
-- [Environment Variables](#environment-variables)
-- [Database Schema](#database-schema)
-- [User Roles](#user-roles)
+- [Installation Guide](#installation-guide)
+- [Configuration](#configuration)
+- [Running the Application](#running-the-application)
+- [Testing Guide](#testing-guide)
+- [API Endpoints](#api-endpoints)
+- [User Roles & Permissions](#user-roles--permissions)
 - [Troubleshooting](#troubleshooting)
 
 ---
 
-## Features
+## ✨ Features
 
-### For Users
-- User authentication (Register/Login)
-- Browse available travel packages
-- Book travel packages
-- View booking history in user dashboard
-- Track booking status (Booked/Cancelled)
+### Core Features
+- ✅ **User Authentication** - Secure login/registration with NIC-based accounts
+- ✅ **Role-Based Access Control** - Admin, Operator, and User roles
+- ✅ **Vehicle Management** - Add, delete, and manage vehicles (one vehicle per user)
+- ✅ **Fuel Quota System** - Set and manage weekly fuel quotas per vehicle type
+- ✅ **QR Code Integration** - Generate and scan QR codes for vehicle verification
+- ✅ **Operator Fuel Dispensing** - Dispense fuel with real-time quota validation
+- ✅ **Admin Dashboard** - Search vehicles, update quotas, manage users
+- ✅ **Automatic Weekly Reset** - Quota resets every Sunday at 00:00 UTC
+- ✅ **Real-Time Validation** - Prevent duplicates, enforce data integrity
+- ✅ **Responsive UI** - Works on desktop and mobile devices
 
-### For Admins
-- Admin dashboard with full control
-- Create new travel packages
-- Delete packages
-- View all user bookings
-- Update booking status
-
-### General
-- Secure JWT authentication
-- Role-based access control (User/Admin)
-- Responsive UI design
-- Error handling and validation
-- CORS protection
+### Advanced Features
+- 📱 Mobile-optimized QR code scanner with camera access
+- 🔐 JWT-based authentication with secure token handling
+- 📊 Real-time vehicle quota progress visualization
+- 🔍 Admin vehicle search with instant results
+- 🌐 Full CRUD operations for vehicle management
+- ⚡ Optimized performance with Vite bundler
 
 ---
 
-## Tech Stack
+## 🛠 Tech Stack
 
 ### Frontend
-- React 19 - UI library
-- Vite 8 - Build tool
-- React Router DOM 7 - Client-side routing
-- Axios - HTTP client
-- CSS3 - Custom styling
+- **React** 19.2.4 - UI library
+- **Vite** 8.0.1 - Build tool and dev server
+- **Axios** - HTTP client with JWT interceptors
+- **React Router** 7.13.2 - Client-side routing
+- **jsQR** - QR code detection library
+- **CSS3** - Custom styling with CSS variables
 
 ### Backend
-- Node.js + Express 5 - REST API server
-- MongoDB 9.3 - NoSQL database
-- Mongoose - MongoDB ODM
-- JWT (jsonwebtoken) - Authentication tokens
-- bcryptjs - Password hashing
-- CORS - Cross-origin resource sharing
-
-### Hosting
-- Frontend: Netlify (https://travelbookinglive.netlify.app/)
-- Backend: Railway (https://travel-management-systemlive-production-aaac.up.railway.app/)
-- Database: MongoDB Atlas (Cloud)
+- **Node.js** - JavaScript runtime
+- **Express** 5.2.1 - Web framework
+- **MongoDB Atlas** - Cloud database
+- **Mongoose** 9.3.3 - MongoDB ODM
+- **JWT** - Authentication tokens
+- **bcryptjs** - Password hashing
+- **node-cron** - Scheduled tasks
+- **dotenv** - Environment variables
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
-travel-management-system/
-│
+Project 5 - Fuel Management System/
 ├── backend/
-│   ├── server.js                    Express server setup
-│   ├── package.json                 Backend dependencies
-│   ├── .env                         Environment variables (local)
-│   ├── .env.example                 Environment template
-│   ├── .gitignore                   Git ignore rules
-│   │
+│   ├── config/
+│   │   └── db.js                 # MongoDB connection
 │   ├── controllers/
-│   │   ├── authController.js        Register & Login logic
-│   │   ├── packageController.js     Package CRUD operations
-│   │   └── bookingController.js     Booking operations
-│   │
+│   │   ├── AdminController.js    # Admin operations
+│   │   ├── AuthController.js     # Authentication
+│   │   ├── FuelController.js     # Fuel dispensing
+│   │   ├── operatorController.js # Operator actions
+│   │   ├── QRController.js       # QR code generation
+│   │   ├── VehicleController.js  # Vehicle management
+│   │   └── VerificationController.js # Vehicle verification
 │   ├── models/
-│   │   ├── User.js                  User schema
-│   │   ├── Package.js               Package schema
-│   │   └── Booking.js               Booking schema
-│   │
+│   │   ├── User.js               # User schema
+│   │   ├── Vehicle.js            # Vehicle schema
+│   │   ├── FuelTransaction.js    # Transaction records
+│   │   └── SystemSettings.js     # System configuration
 │   ├── routes/
-│   │   ├── auth.js                  Authentication endpoints
-│   │   ├── packages.js              Package endpoints
-│   │   └── bookings.js              Booking endpoints
-│   │
-│   └── middleware/
-│       ├── auth.js                  JWT verification
-│       └── role.js                  Role-based access control
-│
+│   │   ├── adminRoutes.js        # Admin endpoints
+│   │   ├── authRoutes.js         # Auth endpoints
+│   │   ├── fuelRoutes.js         # Fuel endpoints
+│   │   ├── operatorRoutes.js     # Operator endpoints
+│   │   ├── qrRoutes.js           # QR endpoints
+│   │   ├── vehicleRoutes.js      # Vehicle endpoints
+│   │   └── verificationRoutes.js # Verification endpoints
+│   ├── middleware/
+│   │   ├── authMiddleware.js     # JWT verification
+│   │   └── roleMiddleware.js     # Role authorization
+│   ├── utils/
+│   │   ├── generateToken.js      # JWT token creation
+│   │   ├── qrGenerator.js        # QR code generation
+│   │   └── cronJobs.js           # Scheduled jobs
+│   ├── cron/
+│   │   └── quotaReset.js         # Weekly quota reset
+│   ├── .env                      # Environment variables
+│   ├── app.js                    # Express app setup
+│   ├── server.js                 # Server entry point
+│   └── package.json
 ├── frontend/
 │   ├── src/
-│   │   ├── main.jsx                 React entry point
-│   │   ├── App.jsx                  Main app component
-│   │   ├── index.css                Global styles
-│   │   │
 │   │   ├── api/
-│   │   │   └── axios.js             Axios instance with interceptors
-│   │   │
-│   │   ├── context/
-│   │   │   └── AuthContext.jsx      Global auth state
-│   │   │
+│   │   │   ├── adminApi.js       # Admin API calls
+│   │   │   ├── authApi.js        # Auth API calls
+│   │   │   ├── operatorApi.js    # Operator API calls
+│   │   │   ├── vehicleApi.js     # Vehicle API calls
+│   │   │   └── axios.js          # Axios configuration
 │   │   ├── components/
-│   │   │   ├── Header.jsx           Navigation header
-│   │   │   ├── PackageCard.jsx      Package card component
-│   │   │   └── BookingCard.jsx      Booking card component
-│   │   │
+│   │   │   ├── Layout.jsx        # App layout wrapper
+│   │   │   └── QRScanner.jsx     # QR code scanner
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx   # Authentication context
 │   │   ├── pages/
-│   │   │   ├── Home.jsx             Home page with packages
-│   │   │   ├── Login.jsx            Login page
-│   │   │   ├── Register.jsx         Registration page
-│   │   │   ├── UserDashboard.jsx    User booking dashboard
-│   │   │   └── AdminDashboard.jsx   Admin management panel
-│   │   │
-│   │   └── assets/                  Images, icons, etc.
-│   │
-│   ├── public/
-│   │   └── _redirects               Netlify routing config
-│   │
-│   ├── index.html                   HTML template
-│   ├── package.json                 Frontend dependencies
-│   ├── vite.config.js               Vite configuration
-│   ├── eslint.config.js             ESLint rules
-│   ├── .env.production              Production environment variables
-│   └── .gitignore                   Git ignore rules
-│
-└── README.md                         Documentation
-
+│   │   │   ├── Home.jsx          # Home page
+│   │   │   ├── Login.jsx         # Login page
+│   │   │   ├── Register.jsx      # Registration page
+│   │   │   ├── UserDashboard.jsx # User dashboard
+│   │   │   ├── OperatorDashboard.jsx # Operator dashboard
+│   │   │   └── AdminDashboard.jsx    # Admin dashboard
+│   │   ├── routes/
+│   │   │   └── ProtectedRoute.jsx # Route protection
+│   │   ├── App.jsx               # Main app component
+│   │   ├── main.jsx              # React entry point
+│   │   └── index.css             # Global styles
+│   ├── public/                   # Static assets
+│   ├── vite.config.js            # Vite configuration
+│   ├── package.json
+│   └── index.html                # HTML template
+└── README.md                     # This file
 ```
 
 ---
 
-## Getting Started
+## 📦 Installation Guide
 
 ### Prerequisites
+- **Node.js** (v14.0 or higher) - [Download](https://nodejs.org/)
+- **npm** (comes with Node.js) or **yarn**
+- **MongoDB Atlas Account** - [Create Free Account](https://www.mongodb.com/cloud/atlas)
+- **Git** - [Download](https://git-scm.com/)
+- **Web Browser** - Chrome, Firefox, Safari, or Edge
 
-Before you begin, ensure you have the following installed:
-- Node.js (v16 or higher)
-- npm or yarn (comes with Node.js)
-- Git
-- MongoDB Atlas Account (free tier available)
-
-### Local Development Setup
-
-#### Step 1: Clone the Repository
+### Step 1: Clone or Download the Project
 
 ```bash
-git clone https://github.com/GayanPradeepJayawardhana/travel-management-system_Live.git
-cd travel-management-system_Live
+# Clone from repository
+git clone <repository-url>
+cd "Project 5 - Fuel Management System"
+
+# OR download as ZIP and extract
 ```
 
-#### Step 2: Backend Setup
+### Step 2: Backend Setup
+
+#### 2.1 Install Backend Dependencies
 
 ```bash
 cd backend
-
-# Install dependencies
 npm install
-
-# Create .env file
-cp .env.example .env
-
-# Edit .env with your values
 ```
 
-Edit backend/.env with:
-```
-MONGO_URI=your_mongodb_connection_string
+#### 2.2 Create `.env` File
+
+Create a `.env` file in the `backend` directory with the following variables:
+
+```env
 PORT=5000
-JWT_SECRET=your_secret_key_here
-FRONTEND_URL=http://localhost:5173
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>?retryWrites=true&w=majority
+JWT_SECRET=your_super_secret_jwt_key_here_make_it_long_and_random
+NODE_ENV=development
 ```
 
-Start the backend server:
+**How to get MongoDB URI:**
+1. Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. Create a free account or login
+3. Create a new cluster (choose shared tier for free)
+4. Click "Connect" → "Connect your application"
+5. Copy the connection string
+6. Replace `<username>`, `<password>`, and `<database>` with your values
+
+#### 2.3 Verify Backend Connection
+
 ```bash
-npm run dev    # Development mode with nodemon
-npm start      # Production mode
+npm start
 ```
 
-Backend runs on: http://localhost:5000
+Expected output:
+```
+📅 Quota reset scheduler initialized (runs every Sunday at 00:00 UTC)
+Server running on port 5000
+MongoDB Connected: <cluster-name>
+```
 
-#### Step 3: Frontend Setup
+Press `Ctrl+C` to stop the server temporarily.
+
+### Step 3: Frontend Setup
+
+#### 3.1 Install Frontend Dependencies
 
 ```bash
-cd frontend
-
-# Install dependencies
+cd ../frontend
 npm install
+```
 
-# Start development server
+#### 3.2 Create `.env` File
+
+Create a `.env` file in the `frontend` directory:
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+**Note**: For production deployment on Netlify, this is automatically configured to use the Railway backend URL.
+
+#### 3.3 Verify Frontend Runs
+
+```bash
 npm run dev
 ```
 
-Frontend runs on: http://localhost:5173
+Expected output:
+```
+VITE v8.0.3 ready in XXX ms
 
-#### Step 4: Open in Browser
+➜  Local:   http://localhost:5173/
+➜  Network: use --host to expose
+```
 
-Visit http://localhost:5173 to use the application
+Press `Ctrl+C` to stop the server temporarily.
 
 ---
 
-## API Documentation
+## ⚙️ Configuration
 
-### Base URL (Production)
+### Backend Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `PORT` | Express server port | `5000` |
+| `MONGODB_URI` | MongoDB connection string | `mongodb+srv://user:pass@cluster.mongodb.net/db` |
+| `JWT_SECRET` | Secret key for JWT tokens | `your_secret_key_here` |
+| `NODE_ENV` | Environment mode | `development` or `production` |
+
+### Frontend Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `VITE_API_URL` | Backend API base URL | `http://localhost:5000/api` |
+
+### Default Fuel Quotas (per vehicle type)
+
+These are set automatically on first run:
+- **Car**: 50L per week
+- **Bike**: 20L per week
+- **Van**: 100L per week
+- **Bus**: 150L per week
+- **Three-wheel**: 30L per week
+
+---
+
+## 🌐 Live Deployment
+
+### Backend (Railway)
+- **URL**: https://fuelpasssystemlive-production.up.railway.app
+- **Provider**: Railway
+- **Database**: MongoDB Atlas
+
+### Frontend (Netlify)
+- **URL**: https://fuelpasssystemlive.netlify.app
+- **Provider**: Netlify
+- **Build**: Vite
+
+---
+
+## 🚀 Running the Application
+
+### Option 1: Run Both Servers Locally (Recommended)
+
+**Terminal 1 - Backend:**
+```bash
+cd backend
+npm start
 ```
-https://travel-management-systemlive-production-aaac.up.railway.app
+
+**Terminal 2 - Frontend:**
+```bash
+cd frontend
+npm run dev
 ```
+
+Then open: **http://localhost:5173**
+
+### Option 2: Production Build Locally
+
+**Build Frontend:**
+```bash
+cd frontend
+npm run build
+```
+
+**Serve Backend in Production:**
+```bash
+cd backend
+NODE_ENV=production npm start
+```
+
+---
+
+## 🧪 Testing Guide
+
+### Quick Start Test (5 minutes)
+
+#### 1. Register a New Account
+- Go to http://localhost:5173
+- Click "Don't have an account? Register"
+- Fill in the form:
+  - **NIC**: `123456789V` (unique per user)
+  - **First Name**: Your first name
+  - **Last Name**: Your last name (optional)
+  - **Mobile**: `9876543210` (exactly 10 digits)
+  - **Address**: Your address
+  - **Password**: Your password (min 6 chars)
+- Click "Create Account"
+- ✓ Should redirect to login page
+
+#### 2. Login
+- Enter NIC: `123456789V`
+- Enter Password: Your password
+- Click "Login"
+- ✓ Should show User Dashboard
+
+#### 3. Add a Vehicle
+- On User Dashboard, click "Add New Vehicle"
+- Fill in:
+  - **Vehicle Number**: `ABC-1234` (unique)
+  - **Vehicle Type**: Select from dropdown (Car, Bike, Van, Bus, Three-wheel)
+  - Click "Add Vehicle"
+- ✓ Vehicle should appear in the list below
+- ✓ QR code should be displayed
+
+#### 4. Test One-Vehicle Rule
+- Try to add another vehicle
+- ✓ Should show error: "User can only have one vehicle"
+
+#### 5. Test QR Code
+- Click on the QR code image
+- ✓ QR code should open in new tab or download
+
+#### 6. Test Vehicle Deletion
+- Click "Delete Vehicle" button
+- Confirm deletion
+- ✓ Vehicle should be removed from list
+- ✓ Form should show "No vehicles registered"
+
+---
+
+### Full Testing Checklist (15 minutes)
+
+#### Authentication Tests
+- [ ] Register with valid data → Success
+- [ ] Register with duplicate NIC → Error: "NIC already registered"
+- [ ] Register with duplicate mobile → Error: "Mobile number already registered"
+- [ ] Register with invalid mobile (<10 digits) → Error: "Mobile number must be exactly 10 digits"
+- [ ] Register with invalid mobile (non-numeric) → Error: "Mobile number must be exactly 10 digits"
+- [ ] Register without last name → Success (last name is optional)
+- [ ] Login with correct credentials → Success
+- [ ] Login with wrong password → Error: "Invalid credentials"
+- [ ] Access protected page without login → Redirect to login
+
+#### Vehicle Management Tests (User)
+- [ ] Add vehicle → Success
+- [ ] Try to add second vehicle → Error: "User can only have one vehicle"
+- [ ] Delete vehicle → Success with confirmation
+- [ ] Add vehicle again → Success
+- [ ] QR code displays correctly
+- [ ] QR code is unique per vehicle
+
+#### Operator Tests
+- [ ] Login as operator account
+- [ ] Scan QR code using camera
+- [ ] Verify vehicle shows owner details
+- [ ] Enter fuel amount within quota → Success
+- [ ] Enter fuel amount exceeding quota → Error: "Exceeds available quota"
+- [ ] Fuel transaction appears in history
+
+#### Admin Tests
+- [ ] Login as admin account
+- [ ] View all users count
+- [ ] View all vehicles count
+- [ ] Search for vehicle by registration number
+  - [ ] Enter "ABC-1234" → Vehicle appears
+  - [ ] Enter non-existent vehicle → No results
+  - [ ] Click "Clear" → Search results disappear
+- [ ] Update vehicle quota from search results
+  - [ ] Enter new quota value
+  - [ ] Click "Update"
+  - [ ] ✓ Quota updates in search results
+  - [ ] ✓ Quota updates in vehicle list below
+- [ ] Update vehicle quota from vehicle list
+  - [ ] Enter new quota value
+  - [ ] Click "Update"
+  - [ ] ✓ Quota updates immediately
+
+#### Feature Tests
+- [ ] Weekly quota resets on Sunday at 00:00 UTC
+- [ ] Fuel transactions recorded correctly
+- [ ] Remaining quota decreases after fuel dispensing
+- [ ] Page refresh maintains login session
+- [ ] Mobile responsive layout works
+- [ ] All forms show validation messages
+- [ ] All API errors show user-friendly messages
+
+#### Data Validation Tests
+- [ ] Mobile number limited to 10 digits (no more input after 10)
+- [ ] Mobile number shows character counter (X/10)
+- [ ] Mobile number accepts only numeric input
+- [ ] NIC field is unique
+- [ ] Mobile field is unique
+- [ ] Vehicle number is unique
+- [ ] Passwords must match during registration
+
+#### UI/UX Tests
+- [ ] All buttons are clickable
+- [ ] Loading states display correctly
+- [ ] Error messages are clear and helpful
+- [ ] Success messages appear after actions
+- [ ] Layout is responsive on mobile (use browser DevTools)
+- [ ] All links work correctly
+- [ ] Forms clear after successful submission
+- [ ] No console errors (press F12 to check)
+
+---
+
+## 🔌 API Endpoints
 
 ### Authentication Endpoints
 
-#### Register User
 ```
-POST /api/auth/register
-Content-Type: application/json
-
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "securepassword123"
-}
+POST   /api/auth/register           - Register new user
+POST   /api/auth/login              - Login user
 ```
 
-Response:
-```json
-{
-  "message": "User registered successfully"
-}
+### Vehicle Endpoints
+
+```
+POST   /api/vehicle/add             - Add new vehicle
+GET    /api/vehicle/my-vehicles     - Get user's vehicles
+DELETE /api/vehicle/:id             - Delete vehicle
 ```
 
-#### Login User
-```
-POST /api/auth/login
-Content-Type: application/json
+### Operator Endpoints
 
-{
-  "email": "john@example.com",
-  "password": "securepassword123"
-}
+```
+POST   /api/operator/verify-vehicle - Verify vehicle
+POST   /api/operator/fuel-vehicle   - Dispense fuel
 ```
 
-Response:
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "user": {
-    "_id": "507f1f77bcf86cd799439011",
-    "name": "John Doe",
-    "email": "john@example.com",
-    "role": "user"
-  }
-}
+### Admin Endpoints
+
+```
+GET    /api/admin/users             - Get all users
+GET    /api/admin/vehicles          - Get all vehicles
+GET    /api/admin/search            - Search vehicle
+POST   /api/admin/update-quota      - Update fuel quota
 ```
 
-### Package Endpoints
+### QR Code Endpoints
 
-#### Get All Packages
 ```
-GET /api/packages
-```
-
-Returns array of all travel packages
-
-#### Create Package (Admin Only)
-```
-POST /api/packages
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "title": "Paris City Tour",
-  "description": "Experience the magic of Paris",
-  "location": "Paris, France",
-  "price": 1200
-}
-```
-
-#### Delete Package (Admin Only)
-```
-DELETE /api/packages/{packageId}
-Authorization: Bearer {token}
-```
-
-### Booking Endpoints
-
-#### Create Booking
-```
-POST /api/bookings
-Authorization: Bearer {token}
-Content-Type: application/json
-
-{
-  "packageId": "507f1f77bcf86cd799439011"
-}
-```
-
-#### Get User Bookings
-```
-GET /api/bookings/user
-Authorization: Bearer {token}
-```
-
-#### Get All Bookings (Admin Only)
-```
-GET /api/bookings
-Authorization: Bearer {token}
+GET    /api/qr/vehicle/:id          - Generate QR code
 ```
 
 ---
 
-## Deployment
+## 👥 User Roles & Permissions
 
-### Frontend Deployment (Netlify)
+### Regular User
+- ✅ Register and login
+- ✅ Add/delete one vehicle
+- ✅ View vehicle QR code
+- ✅ View fuel transaction history
+- ✅ View remaining quota
 
-1. Push code to GitHub
-2. Connect repository to Netlify
-3. Set build settings:
-   - Build command: npm run build
-   - Publish directory: frontend/dist
-   - Base directory: frontend
-4. Add environment variable:
-   VITE_API_BASE_URL=https://your-railway-backend-url.com/api
-5. Click Deploy
+### Operator
+- ✅ All User permissions
+- ✅ Scan QR codes
+- ✅ Verify vehicles
+- ✅ Dispense fuel
+- ✅ View transaction history
 
-### Backend Deployment (Railway)
-
-1. Push code to GitHub
-2. Create project on Railway
-3. Connect GitHub repository
-4. Set environment variables in Railway dashboard:
-   - MONGO_URI=your_mongodb_connection_string
-   - JWT_SECRET=your_strong_secret_key
-   - FRONTEND_URL=https://your-netlify-frontend-url.com
-5. Railway auto-deploys on push
-
----
-
-## Environment Variables
-
-### Backend (.env)
-```
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/?appName=TravelApp
-PORT=5000
-JWT_SECRET=aB7$kL9@mN2#pQ4!xY8&zC3*wE5(vR6)
-FRONTEND_URL=https://travelbookinglive.netlify.app
-```
-
-### Frontend (.env.production)
-```
-VITE_API_BASE_URL=https://travel-management-systemlive-production-aaac.up.railway.app/api
-```
-
-IMPORTANT: Never commit .env files to Git. Use .env.example as template.
+### Admin
+- ✅ All Operator permissions
+- ✅ View all users
+- ✅ View all vehicles
+- ✅ Search vehicles
+- ✅ Update fuel quotas
+- ✅ Manage system settings
 
 ---
 
-## Database Schema
+## 🐛 Troubleshooting
+
+### MongoDB Connection Issues
+
+**Error**: `Connection refused` or `ECONNREFUSED`
+
+**Solution**:
+1. Check MongoDB Atlas is accessible
+2. Verify IP address is whitelisted (set to 0.0.0.0 for development)
+3. Check connection string in `.env`:
+   - Username and password are URL encoded
+   - Database name is included
+   - `?retryWrites=true&w=majority` is appended
+
+```bash
+# Test MongoDB URI in Node.js
+node -e "console.log(require('url').format(process.env.MONGODB_URI))"
+```
+
+### Port Already in Use
+
+**Error**: `EADDRINUSE: address already in use :::5000`
+
+**Solution**:
+```bash
+# Windows - Stop process on port 5000
+netstat -ano | findstr :5000
+taskkill /PID <PID> /F
+
+# Mac/Linux - Stop process on port 5000
+lsof -i :5000
+kill -9 <PID>
+```
+
+### CORS Errors
+
+**Error**: `Access to XMLHttpRequest blocked by CORS policy`
+
+**Solution**:
+1. Ensure backend is running on port 5000
+2. Check `VITE_API_URL` in frontend `.env` is correct
+3. Backend has CORS enabled for `http://localhost:5173`
+
+### Vite Not Starting
+
+**Error**: `Port 5173 already in use` or build fails
+
+**Solution**:
+```bash
+# Install dependencies again
+cd frontend
+npm install
+
+# Clear cache
+npm cache clean --force
+
+# Start with specific port
+npm run dev -- --port 3000
+```
+
+### JWT Token Expired
+
+**Error**: `Token is not valid` or `Unauthorized`
+
+**Solution**:
+1. Clear browser localStorage: Open DevTools (F12) → Application → Clear localStorage
+2. Logout and login again
+3. Check JWT_SECRET is consistent between sessions
+
+### QR Scanner Not Working
+
+**Error**: `Camera access denied` or `NotAllowedError`
+
+**Solution**:
+1. Check browser permissions for camera access
+2. Allow camera access in browser settings
+3. Use HTTPS or localhost (some browsers require secure context for camera)
+4. Use fallback mode - manually enter vehicle number instead of scanning
+
+### Quota Reset Not Working
+
+**Error**: Quota not resetting on Sunday
+
+**Solution**:
+1. Check server is running continuously
+2. Verify cron job initialization message appears on startup
+3. Check MongoDB has write permissions
+4. Quota resets at **Sunday 00:00 UTC** (adjust timezone if needed)
+
+### Cannot Register - Mobile Number Error
+
+**Error**: `Mobile number must be exactly 10 digits`
+
+**Solution**:
+1. Enter exactly 10 numeric digits
+2. No spaces, dashes, or special characters
+3. Mobile field shows counter: X/10 digits
+4. Field won't accept input after 10 digits
+
+### Cannot Register - Duplicate NIC or Mobile
+
+**Error**: `NIC already registered` or `Mobile number already registered`
+
+**Solution**:
+1. Use a unique NIC (not previously registered)
+2. Use a unique mobile number (not previously registered)
+3. Check with admin if account already exists
+4. Use different registration details
+
+---
+
+## 📱 Testing on Mobile Device
+
+### Setup
+1. Find your computer's local IP address:
+   ```bash
+   # Windows
+   ipconfig
+   # Look for IPv4 Address (e.g., 192.168.x.x)
+   
+   # Mac/Linux
+   ifconfig
+   ```
+
+2. Start frontend with host exposed:
+   ```bash
+   cd frontend
+   npm run dev -- --host
+   ```
+
+3. On mobile device, visit: `http://<your-ip>:5173`
+
+4. Test QR code scanner with actual camera access
+
+---
+
+## 📊 Database Schema
 
 ### User Model
-```
+```javascript
 {
-  name: String,
-  email: String (unique),
+  NIC: String (unique),
+  firstName: String,
+  lastName: String (optional),
+  mobile: String (unique, length: 10),
+  address: String,
   password: String (hashed),
-  role: String (user or admin, default: user),
-  createdAt: Date,
-  updatedAt: Date
+  role: String (user/operator/admin),
+  createdAt: Date
 }
 ```
 
-### Package Model
-```
+### Vehicle Model
+```javascript
 {
-  title: String,
-  description: String,
-  location: String,
-  price: Number,
-  imageUrl: String,
-  createdAt: Date,
-  updatedAt: Date
-}
-```
-
-### Booking Model
-```
-{
+  vehicleNumber: String (unique),
+  vehicleType: String (car/bike/van/bus/threewheel),
+  weeklyQuota: Number,
+  remainingQuota: Number,
   user: ObjectId (reference to User),
-  package: ObjectId (reference to Package),
-  status: String (booked or cancelled, default: booked),
-  createdAt: Date,
-  updatedAt: Date
+  qrCode: String,
+  createdAt: Date
+}
+```
+
+### FuelTransaction Model
+```javascript
+{
+  vehicle: ObjectId,
+  operator: ObjectId,
+  amount: Number,
+  previousQuota: Number,
+  newQuota: Number,
+  timestamp: Date
 }
 ```
 
 ---
 
-## User Roles
+## 🤝 Contributing
 
-### User Role
-- Browse travel packages
-- Create bookings
-- View own bookings in dashboard
-- Cannot access admin features
+To contribute to this project:
 
-### Admin Role
-- All user permissions
-- Create travel packages
-- Delete travel packages
-- View all user bookings
-- Update booking status
-
-Note: To create an admin account, register a user and manually change the role in MongoDB to "admin".
+1. Create a new branch: `git checkout -b feature/your-feature`
+2. Make changes and commit: `git commit -am 'Add new feature'`
+3. Push to branch: `git push origin feature/your-feature`
+4. Submit a pull request
 
 ---
 
-## Troubleshooting
+## 📝 License
 
-### Issue: CORS Error
-Symptom: Frontend can't connect to backend
-
-Solution:
-1. Check FRONTEND_URL environment variable in Railway
-2. Ensure it matches your Netlify domain exactly
-3. Restart the backend deployment
-
-### Issue: MongoDB Connection Error
-Symptom: MongoDB connection error in logs
-
-Solution:
-1. Verify MONGO_URI in Railway environment variables
-2. Check if MongoDB Atlas IP whitelist includes Railway IP
-3. Ensure MongoDB cluster is not paused
-
-### Issue: Login/Register Not Working
-Symptom: Failed to load packages or blank page
-
-Solution:
-1. Open browser DevTools (F12) and go to Console tab
-2. Check for CORS or network errors
-3. Verify API URL in frontend/.env.production
-4. Redeploy both frontend and backend
-
-### Issue: Packages Not Showing
-Symptom: Home page loads but no packages visible
-
-Solution:
-1. Log in as admin
-2. Create at least one package in admin dashboard
-3. Refresh home page
+This project is licensed under the MIT License - see LICENSE file for details.
 
 ---
 
-## Test Credentials
+## 📞 Support
 
-After first deployment, create these accounts for testing:
-
-Admin Account:
-- Email: admin@example.com
-- Password: Admin@123
-
-User Account:
-- Email: user@example.com
-- Password: User@123
-
-Then manually update the admin account's role in MongoDB.
+For issues or questions:
+1. Check the [Troubleshooting](#troubleshooting) section
+2. Review error messages in browser console (F12)
+3. Check backend logs for API errors
+4. Verify all environment variables are set correctly
 
 ---
 
-## Support
+## 🎉 Ready to Test!
 
-If you encounter any issues:
-1. Check the Troubleshooting section above
-2. Review browser console for error messages
-3. Check Railway logs for backend errors
-4. Create an issue on GitHub
+Your Fuel Management System is now ready for testing. Follow the **Testing Guide** section above to validate all features before deployment.
 
----
+**Quick Command Reference:**
+```bash
+# Terminal 1 - Backend
+cd backend && npm start
 
-## License
+# Terminal 2 - Frontend
+cd frontend && npm run dev
 
-This project is licensed under the ISC License.
+# Open in browser
+http://localhost:5173
+```
 
----
-
-## Built With
-
-- React and Node.js
-- Express and MongoDB
-- Hosted on Netlify and Railway
-
-Happy travels!
+Happy testing! 🚀
